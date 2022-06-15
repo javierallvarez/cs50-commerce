@@ -1,0 +1,136 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}
+Listing
+{% endblock %}
+
+{% block body %}
+
+<div class="listing_page">
+
+    <h1 class="title"> {{ listing.title|title }} </h1>
+    <p class="subtitle">Posted by {{ listing.creator|capfirst }}</p>
+
+    <div class="listing_comp">
+        <figure class="lis_img">
+            <img src="{{listing.image}}" alt="{{listing.title}}">
+        </figure>
+
+        <div class="wrapper">
+            <article class="listing_info">
+                <div class="description">
+                    <h3> {{ listing.title|title }}</h3>
+                    <p>{{listing.description}}</p>
+                    <h5><i class="fa-solid fa-circle-dollar-to-slot"></i><strong> {{ listing.initial_bid }} $ </strong></h5>
+                </div>
+            </article>
+
+            <div class="listing_info dos">
+                <table>
+                    <tr>
+                        <td><i class="fa-solid fa-dna"></i></td>
+                        <td><a href="{% url 'category' listing.id %}">{{listing.category}}</a></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fa-solid fa-calendar-days"></i></td>
+                        <td>{{listing.created}}</td>
+                    </tr>
+                
+                    <tr>
+                        <td><i class="fa-solid fa-credit-card"></i></td>
+                        <td>Total bids: {{listing.bid.count}}</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fa-solid fa-face-laugh-beam"></i></td>
+                        <td>Last bid by: {{ listing.bid.last.user.username|capfirst }}</td>
+                    </tr>
+                </table>
+                <div >
+                    {% if user.is_authenticated and user.username != listing.user.username %}
+                    <form action="{% url 'watchlist' listing.id %}" method="POST" class="faves">
+                        {% csrf_token %}
+                        {% if added == True %}
+                        <input type="submit" class="star_btn two" name="add_to_watchlist" value="★"></input>
+                        <p class="alerter">{{ message }}</p>
+                        {% else %}
+                        <input type="submit" class="star_btn" name="add_to_watchlist" value="☆"></input>
+                        <p class="alerter">{{ message }}</p>
+                        {% endif %}
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="middle">
+                <ul>
+                    {% if user.is_authenticated and user.username == listing.bid.last.user.username and not listing.active %}
+                        <li class="win">Congrats <strong>{{listing.bid.last.user.username|capfirst}}</strong>, you won this auction!</li>
+                    {% elif user.is_authenticated and user.username != listing.bid.last.user.username and not listing.active %}
+                        <li class="win">You have sold this item to <strong>{{listing.bid.last.user.username|capfirst}}</strong>!</li>
+                    {% endif %}
+                </ul>
+
+                {% if user.is_authenticated and user.username != listing.creator.username and listing.active %}
+                    <form action="{% url 'make_bid' listing.id %}" method="POST" class="bids">
+                        {% csrf_token %}
+                        {{ form.bid }}
+                        <input type="submit" value="Bid on it!" class="former_btn">
+                        <p class="error">
+                            {% if confirmation %} {{ confirmation }} {% endif %}
+                            {% if error %} {{ error }} {% endif %}
+                        </p>
+                    </form>
+                {% endif %}
+
+                {% if listing.active == True and user.username == listing.creator.username %}
+                <form action="{% url 'listing' listing.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" name="close" class="former_btn closer" value="close">Close listing</button>
+                </form>
+                {% endif %}                
+            </div>
+
+        </div>
+    </div>
+
+    <div>
+        <a href="#second_part" class="scroll_comment">
+            <h5 class="scroll">See comments ➟ </h5>
+            <h5 class="arrow"></h5>
+        </a>
+    </div>
+</div>
+
+
+<div class="second_part" id="second_part">
+
+    {% if listing.active %}
+    <form action="{% url 'post_comment' listing.id %}" method="POST" enctype="multipart/form-data" class="form_comment">
+        {% csrf_token %}
+
+        <label for="comment"></label> {{ comment_form.comment }}
+        <input type="submit" value="Add your comment" />
+    </form>
+    {% endif %}
+
+    {% for comments in listing.comments.all %}
+
+    <div class="card_comment ">
+        <small class="text-muted">
+            Comment by:
+            <i class="fa-solid fa-face-laugh-beam"></i>
+            {{ comments.user|capfirst}} ·
+            <i class="fa-solid fa-calendar-days"></i>
+            {{ comments.created}}
+        </small>
+        <div class="comment">
+            <p>{{ comments.comment }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+
+
+{% endblock %}

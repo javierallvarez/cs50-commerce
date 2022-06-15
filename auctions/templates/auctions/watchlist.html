@@ -1,0 +1,35 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}
+My Wathclist
+{% endblock %}
+
+{% block body %}
+<h1 class="title">My Watchtlist</h1>
+<p class="subtitle">{{ user.username|capfirst }}'s Favourites</p>
+
+<div class="listings">
+    {% for watchlist in watchlists %}
+
+    <a class="card" href="{% url 'listing' watchlist.listing.id %}">
+        <div class="img_cont">
+            <img src="{{watchlist.listing.image}}" alt="{{watchlist.listing.title}}" />
+        </div>
+        <div class="card_footer">
+            <h4>{{watchlist.listing.title}}</h4>
+            <h5>{{watchlist.listing.initial_bid}}$</h5>
+        </div>
+    </a>
+    
+        {% empty %}
+        <div class="formu">
+            <p role="alert">Your Watchlist is empty.</p>
+        </div>
+    </a>
+
+
+    {% endfor %}
+</div>
+
+
+{% endblock %}

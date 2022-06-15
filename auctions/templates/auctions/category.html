@@ -1,0 +1,27 @@
+{% extends "auctions/layout.html" %} {% block body %}
+
+<h1 class="title">{{category.category}}</h1>
+<p>Category</p>
+
+<div class="listings ">
+    {% for listing in categories %}
+
+    <a class="card" href="{% url 'listing' listing.id %}">
+        <div class="img_cont">
+            <img src="{{listing.image}}" alt="{{listing.title}}" />
+        </div>
+        <div class="card_footer">
+            <h4>{{listing.title}}</h4>
+            <h5>{{listing.initial_bid}}$</h5>
+        </div>
+    </a>
+        {% empty %}
+        <div class="formu">
+            <p role="alert">No products with this category yet.</p>
+        </div>
+    </a>
+
+    {% endfor %}
+</div>
+
+{% endblock %}
