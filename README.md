@@ -4,6 +4,5 @@
 
 ### Technologies:
 - Python (Django framework)
-- Javascript
 - HTML
 - CSS
